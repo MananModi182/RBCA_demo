@@ -6,7 +6,7 @@ This project is a Role-Based Access Control (RBAC) User Interface built with Rea
 - [Project Overview](#project-overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Initial user Input](#initial-input)
+- [Initial user Input](#initial-user-input)
 - [Installation](#installation)
 
 ## Project Overview
