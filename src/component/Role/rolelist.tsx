@@ -11,12 +11,21 @@ import {
 } from "antd";
 import { user_role_listcontext } from "../../store/userliststore";
 import { RoleAddEditSchemaType } from "../../utiles/validation/schema";
+import { AuthContext } from "../../store/authcontext";
 
 const { Title } = Typography;
 
 const RoleList = () => {
-  const { roleList, handleAddRole, handleDeleteRole, handleEditRole } =
-    useContext(user_role_listcontext);
+  const {
+    getCombinedRoles,
+    handleAddRole,
+    handleDeleteRole,
+    handleEditRole,
+    validateUserPermission,
+  } = useContext(user_role_listcontext);
+
+  const roleList = getCombinedRoles();
+  const { isLoggedIn, currentUser } = useContext(AuthContext);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleAddEditSchemaType | null>(
@@ -24,12 +33,13 @@ const RoleList = () => {
   );
   const [form] = Form.useForm();
 
-  const handleSubmit = (values: Omit<RoleAddEditSchemaType, "id">) => {
-    if (editingRole) {
-      handleEditRole({ ...editingRole, ...values });
+  const handleSubmit = (values: RoleAddEditSchemaType) => {
+    if (editingRole && editingRole.id) {
+      handleEditRole({ ...values, id: editingRole.id });
       message.success("Role updated successfully.");
     } else {
-      handleAddRole(values);
+      const newvalue = { ...values, id: String(Date.now()) };
+      handleAddRole(newvalue);
       message.success("Role added successfully.");
     }
     setIsModalOpen(false);
@@ -64,33 +74,57 @@ const RoleList = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (_: unknown, role: RoleAddEditSchemaType) => (
-        <>
-          <Button type="link" onClick={() => openModalForEdit(role)}>
-            Edit
-          </Button>
-          <Button type="link" danger onClick={() => handleDeleteRole(role.id)}>
-            Delete
-          </Button>
-        </>
-      ),
+      render: (_: unknown, role: RoleAddEditSchemaType) => {
+        const canEdit = validateUserPermission(currentUser?.role, "Update");
+        const canDelete = validateUserPermission(currentUser?.role, "Delete");
+        return (
+          <>
+            <Button
+              type="link"
+              disabled={!canEdit}
+              onClick={() => openModalForEdit(role)}
+            >
+              Edit
+            </Button>
+            <Button
+              type="link"
+              disabled={!canDelete}
+              danger
+              onClick={() => handleDeleteRole(role.id)}
+            >
+              Delete
+            </Button>
+          </>
+        );
+      },
     },
   ];
 
   return (
     <div className="container mt-4">
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Title level={3}>Role List</Title>
-        <Button type="primary" onClick={openModalForAdd} className="mb-3">
-          Add Role
-        </Button>
-      </div>
-      <Table
-        dataSource={roleList}
-        columns={columns}
-        rowKey="id"
-        pagination={{ pageSize: 5 }}
-      />
+      {isLoggedIn ? (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Title level={3}>Role List</Title>
+            <Button
+              type="primary"
+              disabled={!validateUserPermission(currentUser?.role, "Create")}
+              onClick={openModalForAdd}
+              className="mb-3"
+            >
+              Add Role
+            </Button>
+          </div>
+          <Table
+            dataSource={roleList}
+            columns={columns}
+            rowKey="id"
+            pagination={{ pageSize: 5 }}
+          />
+        </>
+      ) : (
+        "Please Login to see the Role list "
+      )}
       <Modal
         title={editingRole ? "Edit Role" : "Add Role"}
         visible={isModalOpen}

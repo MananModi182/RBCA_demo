@@ -26,7 +26,9 @@ const AddEditUser: React.FC<AddEditUserProps> = ({
     resolver: zodResolver(UserAddEditSchema),
   });
 
-  const { userList, roleList } = useContext(user_role_listcontext);
+  const { getCombinedRoles } = useContext(user_role_listcontext);
+
+  const roleList = getCombinedRoles();
 
   useEffect(() => {
     if (defaultValues) {
@@ -106,6 +108,23 @@ const AddEditUser: React.FC<AddEditUserProps> = ({
                     label: role.name,
                     value: role.name,
                   }))}
+                />
+                {fieldState.error && (
+                  <p style={{ color: "red" }}>{fieldState.error.message}</p>
+                )}
+              </>
+            )}
+          />
+        </Form.Item>
+        <Form.Item label="Password">
+          <Controller
+            name="password"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <Input
+                  {...field}
+                  className="placeholder-secondary-800 font-normal"
                 />
                 {fieldState.error && (
                   <p style={{ color: "red" }}>{fieldState.error.message}</p>

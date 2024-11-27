@@ -1,20 +1,19 @@
-import { Typography } from "antd";
+import { useContext } from "react";
+import { AuthContext } from "../store/authcontext";
 
-const { Text, Title } = Typography;
 const Dashboard = () => {
-  return (
-    <div
-      style={{
-        marginTop: "30px",
-        position: "relative",
-        left: "50%",
-        transform: "translateX(-50%)",
-      }}
-    >
-      <Title>Welcome to your dashboard!</Title>
+  const { currentUser, isLoggedIn } = useContext(AuthContext);
 
-      <Text>Here you can see user and role lists.</Text>
-      <Text>You can also manage users, roles by your own role permission</Text>
+  return (
+    <div className="container mt-4">
+      {isLoggedIn ? (
+        <>
+          <h1>Welcome, {currentUser?.name}</h1>
+          <p>Your role: {currentUser?.role}</p>
+        </>
+      ) : (
+        <p>Please Login to continue.</p>
+      )}
     </div>
   );
 };

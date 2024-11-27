@@ -5,20 +5,23 @@ import { UserRoleListProvider } from "./store/userliststore";
 import Dashboard from "./component/Dashboard";
 import UserList from "./component/User/Userlist";
 import RoleList from "./component/Role/rolelist";
+import { AuthProvider } from "./store/authcontext";
 
 const App = () => {
   return (
     <UserRoleListProvider>
-      <main className="">
-        <Header />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/userlist" element={<UserList />} />
-            <Route path="/rolelist" element={<RoleList />} />
-          </Routes>
-        </Layout>
-      </main>
+      <AuthProvider>
+        <main className="">
+          <Header />
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/userlist" element={<UserList />} />
+              <Route path="/rolelist" element={<RoleList />} />
+            </Routes>
+          </Layout>
+        </main>
+      </AuthProvider>
     </UserRoleListProvider>
   );
 };

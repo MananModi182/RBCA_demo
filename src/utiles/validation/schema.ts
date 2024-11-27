@@ -43,6 +43,10 @@ export const UserAddEditSchema = z.object({
   phoneNumber: z.string(),
   // .regex(/^\d{10}$/, "Phone number must be 10 digits"), // Adjust regex based on your requirements
   role: z.string().nonempty("Role is required"),
+  password: z
+    .string()
+    .nonempty("Password is required")
+    .min(6, "Minimum length is 6 characters"),
   // .refine((value) => ROLE_LIST.includes(value as any), {
   //   message: `Role must be one of: ${ROLE_LIST.join(", ")}`,
   // }),

@@ -3,7 +3,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { LoginSchema, LoginSchemaType } from "../utiles/validation/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "../store/authcontext";
 
 type FormValues = {
   email: string;
@@ -13,41 +13,39 @@ type FormValues = {
 type LoginProps = {
   isVisible: boolean;
   onClose: () => void;
-  onSwitch: () => void;
 };
 
-const Login: React.FC<LoginProps> = ({ isVisible, onClose, onSwitch }) => {
+const Login: React.FC<LoginProps> = ({ isVisible, onClose }) => {
   const { control, handleSubmit, reset } = useForm<FormValues>({
     resolver: zodResolver(LoginSchema),
   });
-  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSignIn = async ({ email, password }: FormValues) => {
-    try {
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        Error(error.message);
-      } else {
-        Error(`An unknown error occurred`);
-      }
-    }
-  };
+  const { login } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFormSubmit: SubmitHandler<LoginSchemaType> = async (
     data: FormValues
   ) => {
     setLoading(true);
-
-    if (!data.email || !data.password) {
-      Error(`Please enter both email and password`);
-      return;
-    }
+    setErrorMessage(null);
 
     try {
-      await handleSignIn({ email, password });
+      const loginSuccess = login(data.email, data.password);
+      if (loginSuccess) {
+        reset();
+        onClose();
+      } else {
+        setErrorMessage("Invalid email or password.");
+      }
     } catch (err) {
-      Error(`Invalid login credentials`, err);
+      if (err instanceof Error) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("An unknown error occurred");
+      }
     }
+
     setLoading(false);
   };
 
@@ -59,62 +57,50 @@ const Login: React.FC<LoginProps> = ({ isVisible, onClose, onSwitch }) => {
       footer={null}
       title="Login"
     >
-      <div
-        style={{
-          position: "relative",
-          left: "50%",
-          transform: "translatex(-50%)",
-        }}
-      >
-        <Form onFinish={handleSubmit(handleFormSubmit)} layout={"vertical"}>
-          <Form.Item label="Email">
-            <Controller
-              name="email"
-              control={control}
-              render={({ field, fieldState }) => (
-                <>
-                  <Input {...field} placeholder="Enter your Email" />
-                  {fieldState.error && (
-                    <span style={{ color: "red" }}>
-                      {fieldState.error.message}
-                    </span>
-                  )}
-                </>
-              )}
-            />
-          </Form.Item>
-          <Form.Item label="Password">
-            <Controller
-              name="password"
-              control={control}
-              render={({ field, fieldState }) => (
-                <>
-                  <Input.Password
-                    {...field}
-                    placeholder="Enter your password"
-                  />
-                  {fieldState.error && (
-                    <span style={{ color: "red" }}>
-                      {fieldState.error.message}
-                    </span>
-                  )}
-                </>
-              )}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Login
-            </Button>
-          </Form.Item>
-        </Form>
-        <div>
-          Don't have an account?{" "}
-          <Button type="link" onClick={onSwitch}>
-            Sign Up
+      <Form onFinish={handleSubmit(handleFormSubmit)} layout={"vertical"}>
+        <Form.Item label="Email">
+          <Controller
+            name="email"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <Input {...field} placeholder="Enter your Email" />
+                {fieldState.error && (
+                  <span style={{ color: "red" }}>
+                    {fieldState.error.message}
+                  </span>
+                )}
+              </>
+            )}
+          />
+        </Form.Item>
+        <Form.Item label="Password">
+          <Controller
+            name="password"
+            control={control}
+            render={({ field, fieldState }) => (
+              <>
+                <Input.Password {...field} placeholder="Enter your password" />
+                {fieldState.error && (
+                  <span style={{ color: "red" }}>
+                    {fieldState.error.message}
+                  </span>
+                )}
+              </>
+            )}
+          />
+        </Form.Item>
+        {errorMessage && (
+          <div style={{ color: "red", marginBottom: "10px" }}>
+            {errorMessage}
+          </div>
+        )}
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            Login
           </Button>
-        </div>
-      </div>
+        </Form.Item>
+      </Form>
     </Modal>
   );
 };
