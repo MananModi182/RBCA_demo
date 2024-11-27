@@ -6,12 +6,8 @@ This project is a Role-Based Access Control (RBAC) User Interface built with Rea
 - [Project Overview](#project-overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
+- [Initial user Input](#initial-input)
 - [Installation](#installation)
-- [Usage](#usage)
-- [Dependencies](#dependencies)
-- [Initial User Data](#initial-user-data)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Project Overview
 
@@ -67,8 +63,24 @@ To get started with this project locally, follow the steps below:
 2. **Navigate into the project directory**:
   ```bash
   cd RBCS_dem
+```
 
+3. ## Installation
+
+To get started with this project locally, follow the steps below:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/MananModi182/RBCA_demo.git
+
+2. **Navigate into the project directory**:
+  ```bash
+  cd RBCS_dem
+```
 3.**Run the application: Start the development server**:
    ```bash
   npm run dev
+
+
+
 
